@@ -62,17 +62,24 @@ public final class FlutterCompassPlugin implements FlutterPlugin, StreamHandler 
     }
 
     private FlutterCompassPlugin(Context context) {
-        display = ((DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE))
-                .getDisplay(Display.DEFAULT_DISPLAY);
-        sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        compassSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        try {
+            display = ((DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE))
+                    .getDisplay(Display.DEFAULT_DISPLAY);
+            sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+            compassSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        } catch (Exception e) {
+            sensorManager = null;
+            compassSensor = null;
+        }
         if (compassSensor == null) {
             Log.d(TAG, "Rotation vector sensor not supported on device, "
                     + "falling back to accelerometer and magnetic field.");
         }
 
-        gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        magneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        if (sensorManager != null) {
+            gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            magneticFieldSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        }
     }
 
     // New Plugin APIs
